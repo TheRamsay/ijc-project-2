@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define LINE_LENGTH 4095
+#define LINE_LENGTH 4095 + 1
 
 typedef struct {
     int read_index;
@@ -110,6 +110,11 @@ int main(int argc, char** argv) {
             break;
     }
 
+    if (lines_limit < 0) {
+        fprintf(stderr, "-n parameter has to be an positive integer.");
+        return EXIT_FAILURE;
+    }
+
     if (strlen(file_name) == 0) {
         f = stdin;
     } else {
@@ -118,8 +123,19 @@ int main(int argc, char** argv) {
 
     char line[LINE_LENGTH];
     CircularBuffer *cb = cb_create(lines_limit);
+    int warned = 0;
 
-    while (fgets(line, LINE_LENGTH, f) != NULL) {
+    while (fgets(line, LINE_LENGTH, f) != NULL) {   
+        if (line[strlen(line) - 1] != '\n') {
+            int c;
+            while ((c = getc(f) != '\n' && c != EOF));
+
+            if (!warned) {
+                fprintf(stderr, "Line is too long.\n");
+                warned = 1;
+            }
+        }
+
         cb_put(cb, line);
     }
 
