@@ -21,7 +21,7 @@ int read_word(char *s, int max, FILE *f) {
 
     // Read all white space chars before some word
     while ((c = getc(f)) != EOF && isspace(c)) ;
-
+    
     // Check if file is at the end
     if (c == EOF) {
         return EOF;
